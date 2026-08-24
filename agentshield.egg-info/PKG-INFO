@@ -1,0 +1,85 @@
+Metadata-Version: 2.4
+Name: agentshield
+Version: 0.1.0
+Summary: A circuit breaker and runtime protection SDK for AI agents.
+Author: AgentShield Contributors
+License: MIT
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+
+# AgentShield
+
+AgentShield is a Python runtime-protection SDK for AI agents.
+
+Its goal is to help developers control AI-agent execution by enforcing
+runtime limits such as budgets, execution steps, latency limits, and
+anomaly-detection policies.
+
+## Project Status
+
+AgentShield is currently in early development.
+
+The initial development goal is a reliable local Python SDK that can:
+
+- enforce configurable execution limits
+- track model usage and estimated cost
+- detect selected abnormal execution patterns
+- stop protected execution when configured limits are reached
+- produce structured execution reports
+
+Additional capabilities such as telemetry, dashboards, alerts,
+team management, and cloud services will be developed separately.
+
+## Initial Architecture
+
+```text
+AgentShield
+│
+├── agentshield/      Core Python SDK
+├── tests/             Automated tests
+├── examples/          Example integrations
+├── api/               Backend/API
+└── dashboard/         Monitoring dashboard
+```
+
+## Development
+
+AgentShield is developed with Python.
+
+Create and activate the project's virtual environment, then install the project in editable mode during development.
+
+```bash
+pip install -e .
+```
+
+## Design Goal
+
+AgentShield is designed around a simple principle:
+
+> AI agents should have enforceable runtime boundaries.
+
+The system should make it possible for developers to define limits before an agent starts executing.
+
+Examples include:
+- maximum estimated spend
+- maximum execution steps
+- maximum latency
+- anomaly thresholds
+- circuit-breaker policies
+
+## Safety Principle
+
+AgentShield should fail safely.
+
+A protection mechanism must never claim that an operation was stopped if that operation has already been sent to an external service.
+
+The SDK will therefore distinguish between:
+1. a decision to block the next operation
+2. an operation that has already started
+3. an operation that has completed
+
+This distinction is important for accurate cost and execution reporting.
+
+## License
+
+AgentShield is currently planned to use the MIT License.
