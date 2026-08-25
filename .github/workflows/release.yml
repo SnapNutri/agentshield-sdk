@@ -1,48 +1,20 @@
-name: CI
+name: Release to PyPI
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
 
 permissions:
   contents: read
 
 jobs:
-  tests:
-    name: Tests (Python ${{ matrix.python-version }})
+  release:
+    name: Build, verify, and publish
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.12", "3.13", "3.14"]
-
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: pip
-
-      - name: Install project and test dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e ".[dev]"
-
-      - name: Run tests
-        run: python -m pytest -q
-
-      - name: Compile source and tests
-        run: python -m compileall -q src tests
-
-  package:
-    name: Build and clean-install package
-    runs-on: ubuntu-latest
-    needs: tests
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Check out repository
@@ -53,15 +25,22 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install build tools
+      - name: Install build and test tools
         run: |
           python -m pip install --upgrade pip
-          python -m pip install build
+          python -m pip install build pytest
+          python -m pip install -e .
+
+      - name: Run tests
+        run: python -m pytest -q
+
+      - name: Compile source and tests
+        run: python -m compileall -q src tests
 
       - name: Build distributions
         run: python -m build --outdir dist
 
-      - name: Check wheel contents
+      - name: Verify distributions
         run: |
           python - <<'PY'
           import pathlib
@@ -85,26 +64,49 @@ jobs:
           cd "$RUNNER_TEMP"
           "$RUNNER_TEMP/agentshield-clean/bin/python" - <<'PY'
           import asyncio
-          import pathlib
           import sys
+          from pathlib import Path
 
           import agentshield
-          from agentshield import current_shield, shield
+          from agentshield import BudgetExceededError, current_shield, shield
 
-          assert pathlib.Path(agentshield.__file__).resolve().is_relative_to(
-              pathlib.Path(sys.prefix).resolve()
+          assert Path(agentshield.__file__).resolve().is_relative_to(
+              Path(sys.prefix).resolve()
           )
 
           @shield(max_duration_seconds=None)
           def sync_agent():
+              current_shield().check_before_step()
               return current_shield().record_step()
 
           @shield(max_duration_seconds=None)
           async def async_agent():
               await asyncio.sleep(0)
+              current_shield().check_before_step()
               return current_shield().record_step()
 
           assert sync_agent() == 1
           assert asyncio.run(async_agent()) == 1
+
+          @shield(budget_limit=1.0, max_duration_seconds=None)
+          def budget_agent():
+              control = current_shield()
+              control.record_llm_call(
+                  model="gpt-4o-mini",
+                  input_tokens=2_000_000,
+                  output_tokens=2_000_000,
+                  latency_ms=10,
+              )
+              control.check_before_step()
+
+          try:
+              budget_agent()
+          except BudgetExceededError:
+              pass
+          else:
+              raise AssertionError("budget protection was bypassed")
           print("Clean-install smoke test passed")
           PY
+
+      - name: Publish to PyPI with Trusted Publishing
+        uses: pypa/gh-action-pypi-publish@release/v1

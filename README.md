@@ -66,6 +66,75 @@ root, for example `BudgetExceededError`, `DurationLimitExceededError`,
 - optional bounded telemetry with failure isolation
 - synchronous, asynchronous, nested, and concurrent session isolation
 
+## Who It Is For
+
+AgentShield is for developers building Python agents that call language
+models, tools, or other external services and need explicit runtime limits.
+It is a library-level control surface. It does not execute agents, replace
+provider safety controls, or provide a hosted monitoring service.
+
+## Protection Controls
+
+- `budget_limit` blocks the next operation after recorded estimated cost
+	reaches the configured amount.
+- `max_duration_seconds` limits elapsed session time.
+- `max_steps` limits completed agent steps.
+- `max_loops` and `cycle_length` detect exact repeated step cycles.
+- `max_tool_repetitions` detects consecutive calls to the same tool.
+- `max_stagnation_steps` and `stagnation_similarity` detect similar responses.
+- The circuit breaker blocks operations after a protection trip and supports
+	cooldown and half-open probing.
+
+The SDK can only block an operation before the caller sends it to an external
+service. Call `check_before_step()` at that boundary and record completed
+usage with `record_llm_call()` or `record_step()`.
+
+## Async Usage
+
+The same decorator works with async functions and preserves the active session
+across awaits:
+
+```python
+from agentshield import current_shield, shield
+
+
+@shield(budget_limit=2.0, max_duration_seconds=30.0)
+async def async_agent():
+		control = current_shield()
+		control.check_before_step()
+		# await the external operation here
+		control.record_step("external-operation")
+		return "done"
+```
+
+## Telemetry and Privacy
+
+Pass an object implementing `EventSink.emit(event)` to receive bounded,
+metadata-only events. Telemetry is disabled by default, and sink failures are
+isolated from agent execution. The built-in events do not record prompts, raw
+responses, tool arguments, or model outputs.
+
+## Exceptions and Support
+
+Protection failures derive from `AgentShieldError`, including budget,
+duration, step, loop, tool-repetition, and stagnation errors. There is no
+separate support service or hosted dashboard at this time. Use the repository
+issue tracker for project questions and bug reports.
+
+## Project Status
+
+This is an early public library release. The API and model pricing table may
+change as real-world use informs future releases. See `CHANGELOG.md` for
+release history and `SECURITY.md` for vulnerability reporting guidance.
+
+## Commercial / Enterprise
+
+The core SDK remains free and open source. Potential paid work is described in
+`COMMERCIAL.md` and is intentionally limited to professional implementation,
+support, policy design, security reviews, and future enterprise integrations.
+No paid service, hosted dashboard, or payment system is currently represented
+as active in this repository.
+
 Telemetry is disabled unless an `EventSink` is supplied. By default, events
 record metadata and counters rather than prompts, raw responses, tool
 arguments, or model outputs.
@@ -105,4 +174,4 @@ This distinction is important for accurate cost and execution reporting.
 
 ## License
 
-AgentShield is released under the MIT License.
+AgentShield is released under the MIT License. See `LICENSE`.
