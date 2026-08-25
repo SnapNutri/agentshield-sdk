@@ -24,8 +24,8 @@ classifiers = [
 ]
 
 [project.urls]
-Repository = "https://github.com/SnapNutri/agentshield-"
-Issues = "https://github.com/SnapNutri/agentshield-/issues"
+Repository = "https://github.com/SnapNutri/agentshield-sdk"
+Issues = "https://github.com/SnapNutri/agentshield-sdk/issues"
 
 [project.optional-dependencies]
 dev = [
