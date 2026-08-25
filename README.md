@@ -13,7 +13,7 @@ anomaly-detection policies.
 AgentShield requires Python 3.12 or newer.
 
 ```bash
-python -m pip install agentshield-sdk
+python -m pip install agentshield-1-sdk
 ```
 
 For local development, install the test dependencies with:
