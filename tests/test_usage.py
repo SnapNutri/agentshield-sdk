@@ -37,3 +37,27 @@ def test_tracker_accumulates_usage():
     assert tracker.total_input_tokens == 3_000
     assert tracker.total_output_tokens == 1_500
     assert len(tracker.records) == 2
+
+
+@pytest.mark.parametrize(
+    ("kwargs", "error"),
+    [
+        ({"input_tokens": -1}, ValueError),
+        ({"output_tokens": -1}, ValueError),
+        ({"input_tokens": True}, TypeError),
+        ({"cost": -0.01}, ValueError),
+        ({"cost": float("inf")}, ValueError),
+        ({"cost": True}, TypeError),
+    ],
+)
+def test_usage_rejects_invalid_values(kwargs, error):
+    values = {
+        "model": "test-model",
+        "input_tokens": 1,
+        "output_tokens": 1,
+        "cost": 0.01,
+    }
+    values.update(kwargs)
+
+    with pytest.raises(error):
+        LLMUsage(**values)

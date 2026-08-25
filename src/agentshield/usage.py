@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from math import isfinite
 from threading import Lock
 
 
@@ -10,6 +11,21 @@ class LLMUsage:
     input_tokens: int
     output_tokens: int
     cost: float
+
+    def __post_init__(self) -> None:
+        for name, value in (
+            ("input_tokens", self.input_tokens),
+            ("output_tokens", self.output_tokens),
+        ):
+            if isinstance(value, bool) or not isinstance(value, int):
+                raise TypeError(f"{name} must be an integer")
+            if value < 0:
+                raise ValueError(f"{name} cannot be negative")
+
+        if isinstance(self.cost, bool) or not isinstance(self.cost, (int, float)):
+            raise TypeError("cost must be numeric")
+        if not isfinite(self.cost) or self.cost < 0:
+            raise ValueError("cost must be finite and non-negative")
 
 
 class UsageTracker:

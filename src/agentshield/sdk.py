@@ -1,16 +1,15 @@
-from functools import wraps
 import inspect
+from functools import wraps
 from typing import Any, Callable, TypeVar
 
 from agentshield.config import ShieldConfig
-from agentshield.telemetry import EventSink
 from agentshield.context import (
     reset_current_session,
     set_current_session,
 )
-from agentshield.session import AgentSession, SessionStatus
 from agentshield.exceptions import AgentShieldError
-
+from agentshield.session import AgentSession, SessionStatus
+from agentshield.telemetry import EventSink
 
 F = TypeVar("F", bound=Callable[..., Any])
 _UNSET = object()

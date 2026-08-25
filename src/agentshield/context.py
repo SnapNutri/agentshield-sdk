@@ -2,7 +2,6 @@ from contextvars import ContextVar, Token
 
 from agentshield.session import AgentSession
 
-
 _current_session: ContextVar[AgentSession | None] = ContextVar(
     "agentshield_current_session",
     default=None,

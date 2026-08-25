@@ -4,9 +4,9 @@ from concurrent.futures import ThreadPoolExecutor
 import pytest
 
 from agentshield import InMemoryEventSink, current_shield, shield
+from agentshield.config import ShieldConfig
 from agentshield.context import current_session
 from agentshield.session import AgentSession
-from agentshield.config import ShieldConfig
 
 
 def test_async_shield_preserves_context_until_await_completes():
@@ -93,7 +93,11 @@ def test_concurrent_threads_have_independent_sessions():
         session.start()
         session.record_step(f"step-{index}")
         session.finish()
-        return session.session_id, session.step_count, session.protection.usage.total_cost
+        return (
+            session.session_id,
+            session.step_count,
+            session.protection.usage.total_cost,
+        )
 
     with ThreadPoolExecutor(max_workers=5) as executor:
         results = list(executor.map(run_session, range(5)))

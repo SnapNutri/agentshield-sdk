@@ -1,8 +1,8 @@
 import pytest
 
 from agentshield import current_shield, shield
-from agentshield.context import current_session
 from agentshield.circuit import CircuitState
+from agentshield.context import current_session
 from agentshield.exceptions import (
     BudgetExceededError,
     DurationLimitExceededError,

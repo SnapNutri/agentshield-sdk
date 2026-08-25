@@ -6,6 +6,8 @@ from agentshield.anomaly import AnomalyDetector
 from agentshield.circuit import CircuitBreaker
 from agentshield.config import ShieldConfig
 from agentshield.costs import calculate_token_cost
+from agentshield.decisions import ProtectionDecision
+from agentshield.events import AgentShieldEvent
 from agentshield.exceptions import (
     BudgetExceededError,
     DurationLimitExceededError,
@@ -13,11 +15,8 @@ from agentshield.exceptions import (
     StagnationDetectedError,
     ToolRepetitionError,
 )
-from agentshield.events import AgentShieldEvent
-from agentshield.decisions import ProtectionDecision
 from agentshield.telemetry import EventSink, emit_safely
 from agentshield.usage import LLMUsage, UsageTracker
-
 
 _UNSET = object()
 
@@ -34,7 +33,7 @@ class ProtectionController:
         event_sink: EventSink | None = None,
         session_id: str = "",
     ) -> None:
-        """Create a protection controller. Accepts either a ShieldConfig or a direct budget value."""
+        """Create a controller from a configuration or a direct budget value."""
         if budget_limit is not _UNSET:
             if config_or_budget is not None:
                 raise TypeError(

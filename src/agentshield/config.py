@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from math import isfinite
 from typing import Any
 
-
 _UNSET = object()
 
 
@@ -48,7 +47,11 @@ class ShieldConfig:
         object.__setattr__(self, "max_steps", max_steps)
         object.__setattr__(self, "max_duration_seconds", max_duration_seconds)
         object.__setattr__(self, "circuit_cooldown_seconds", circuit_cooldown_seconds)
-        object.__setattr__(self, "circuit_half_open_max_calls", circuit_half_open_max_calls)
+        object.__setattr__(
+            self,
+            "circuit_half_open_max_calls",
+            circuit_half_open_max_calls,
+        )
         object.__setattr__(self, "max_loops", max_loops)
         object.__setattr__(self, "cycle_length", cycle_length)
         object.__setattr__(self, "max_tool_repetitions", max_tool_repetitions)

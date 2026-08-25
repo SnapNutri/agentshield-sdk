@@ -4,12 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agentshield-sdk"
-version = "0.2.2"
+version = "0.2.3"
 description = "A circuit breaker and runtime protection SDK for AI agents."
 readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"
 license-files = ["LICENSE"]
+keywords = ["ai", "agents", "circuit-breaker", "runtime-protection", "safety"]
 authors = [
     { name = "AgentShield Contributors" }
 ]
@@ -24,6 +25,7 @@ classifiers = [
 ]
 
 [project.urls]
+Homepage = "https://github.com/SnapNutri/agentshield-sdk"
 Repository = "https://github.com/SnapNutri/agentshield-sdk"
 Issues = "https://github.com/SnapNutri/agentshield-sdk/issues"
 
@@ -34,3 +36,9 @@ dev = [
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.ruff]
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
