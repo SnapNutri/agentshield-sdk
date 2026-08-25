@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.3 - Unreleased
+## 0.2.2 - Unreleased
 
 - Initial AgentShield SDK release candidate.
 - Added budget, duration, step, circuit-breaker, and anomaly protections.
